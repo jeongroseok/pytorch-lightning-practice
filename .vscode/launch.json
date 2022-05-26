@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Checkpointing Practice",
+      "type": "python",
+      "request": "launch",
+      "program": "checkpointing.py",
+      "console": "integratedTerminal",
+      "args": ["fit", "--ckpt-path", "./lightning_logs/version_0/checkpoints/epoch=11-step=1200.ckpt"],
+      "justMyCode": false
+    },
+    {
+      "name": "Launch CLI Practice",
+      "type": "python",
+      "request": "launch",
+      "program": "cli_practice.py",
+      "console": "integratedTerminal",
+      "args": ["fit", "--trainer.max_epochs", "1", "--model=MyModel"],
+      "justMyCode": false
+    }
+  ]
+}
