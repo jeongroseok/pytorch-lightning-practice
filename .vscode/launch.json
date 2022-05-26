@@ -5,12 +5,25 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Tiny CIFAR10",
+      "type": "python",
+      "request": "launch",
+      "program": "cifar10.py",
+      "console": "integratedTerminal",
+      "args": ["--data_dir", "./datasets", "--gpus", "-1"],
+      "justMyCode": false
+    },
+    {
       "name": "Launch Checkpointing Practice",
       "type": "python",
       "request": "launch",
       "program": "checkpointing.py",
       "console": "integratedTerminal",
-      "args": ["fit", "--ckpt-path", "./lightning_logs/version_0/checkpoints/epoch=11-step=1200.ckpt"],
+      "args": [
+        "fit",
+        "--ckpt-path",
+        "./lightning_logs/version_0/checkpoints/epoch=11-step=1200.ckpt"
+      ],
       "justMyCode": false
     },
     {
