@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Tiny CIFAR10",
+      "name": "CIFAR10",
       "type": "python",
       "request": "launch",
       "program": "cifar10.py",

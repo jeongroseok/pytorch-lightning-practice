@@ -1,12 +1,30 @@
 import argparse
+import os
 from pprint import pprint
 
 import torch
 import torch.nn as nn
 from pl_bolts.datamodules import CIFAR10DataModule
 from pytorch_lightning import LightningModule, Trainer, seed_everything
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from torch.utils.data.dataloader import DataLoader
 from torchmetrics import Accuracy
 from torchvision import models
+
+
+def set_persistent_workers(datamodule):
+    def _data_loader(self, dataset, shuffle: bool = False) -> DataLoader:
+        return DataLoader(
+            dataset,
+            batch_size=self.batch_size,
+            shuffle=shuffle,
+            num_workers=self.num_workers,
+            drop_last=self.drop_last,
+            pin_memory=self.pin_memory,
+            persistent_workers=True,
+        )
+
+    datamodule._data_loader = _data_loader
 
 
 class MyModel(LightningModule):
@@ -36,6 +54,7 @@ class MyModel(LightningModule):
         self.backbone.eval()
         with torch.no_grad():
             features = self.backbone(x).flatten(1)
+        features = self.backbone(x).flatten(1)
         y_hat = self.head(features)
         return y_hat
 
@@ -93,25 +112,25 @@ def main():
     parser.add_argument(
         "--gpus",
         type=int,
-        default=0,
+        default=-1,
         help="number of gpus to use for training",
     )
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=2048,
+        default=512,
         help="batch size to use for training",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=5,
+        default=20,
         help="maximum number of epochs for training",
     )
     parser.add_argument(
         "--data_dir",
         type=str,
-        default="/datastores/cifar5",
+        default="./datasets",
         help="the directory to load data from",
     )
     parser.add_argument(
@@ -122,8 +141,13 @@ def main():
     )
     args = parser.parse_args()
 
+    set_persistent_workers(CIFAR10DataModule)
+
     datamodule = CIFAR10DataModule(
-        args.data_dir, batch_size=args.batch_size, num_workers=4
+        args.data_dir,
+        batch_size=args.batch_size,
+        num_workers=min(2, os.cpu_count()),
+        pin_memory=True,
     )
     model = MyModel(datamodule.num_classes, args.learning_rate)
 
@@ -132,7 +156,7 @@ def main():
         max_epochs=args.epochs,
         gpus=args.gpus,
         # logger=TensorBoardLogger("lightning_logs/", name="resnet"),
-        # callbacks=[LearningRateMonitor(logging_interval="step")],
+        callbacks=[EarlyStopping(monitor="val_loss")],
     )
 
     trainer.fit(model, datamodule=datamodule)
