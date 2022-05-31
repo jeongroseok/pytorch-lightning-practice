@@ -155,6 +155,7 @@ def main():
         progress_bar_refresh_rate=10,
         max_epochs=args.epochs,
         gpus=args.gpus,
+        strategy="ddp",
         # logger=TensorBoardLogger("lightning_logs/", name="resnet"),
         callbacks=[EarlyStopping(monitor="val_loss")],
     )
